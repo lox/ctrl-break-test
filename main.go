@@ -24,7 +24,7 @@ func main() {
 		signal.Notify(c)
 
 		log.Printf("Running in sub process PID %d", os.Getpid())
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 5; i++ {
 			select {
 			case <-time.After(time.Second):
 				log.Printf("Tick")
@@ -33,7 +33,7 @@ func main() {
 				os.Exit(0)
 			}
 		}
-		
+		os.Exit(1)
 	}
 
 	log.Printf("Creating sub process from PID %d", os.Getpid())
@@ -50,12 +50,12 @@ func main() {
 	}
 
 	log.Printf("Started process as PID %d", cmd.Process.Pid)
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second)
 
 	// See https://docs.microsoft.com/en-us/windows/console/generateconsolectrlevent
 	r1, _, err := procGenerateConsoleCtrlEvent.Call(syscall.CTRL_BREAK_EVENT, uintptr(cmd.Process.Pid))
 	if r1 == 0 {
-		log.Fatalf("Error sending CTRL_BREAK_EVENT: %v", err)
+		log.Printf("Error sending CTRL_BREAK_EVENT: %v", err)
 	}
 
 	if err := cmd.Wait(); err != nil {
